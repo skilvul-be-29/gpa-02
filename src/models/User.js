@@ -14,6 +14,10 @@ const userSchema = new Schema({
     trim: true,
     minlength: 3,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 export const User = model("User", userSchema);
