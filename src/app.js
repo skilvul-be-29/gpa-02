@@ -1,13 +1,15 @@
 import express from "express";
-import { users } from "./routes/users.js";
-import { threads } from "./routes/threads.js";
-import { comments } from "./routes/comments.js";
 import ClientError from "./commons/exceptions/ClientError.js";
+import { auth } from "./routes/auth.js";
+import { comments } from "./routes/comments.js";
+import { threads } from "./routes/threads.js";
+import { users } from "./routes/users.js";
 
 export const app = express();
 
 app.use(express.json());
 
+app.use("/auth", auth);
 app.use("/users", users);
 app.use("/threads", threads);
 app.use("/threads", comments);

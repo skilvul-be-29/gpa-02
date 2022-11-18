@@ -1,27 +1,25 @@
-import { Comment } from "../models/Comment.js";
-import { Thread } from "../models/Thread.js";
-import { Types } from "mongoose";
-import NotFoundError from "../commons/exceptions/NotFoundError.js";
 import AuthorizationError from "../commons/exceptions/AuthorizationError.js";
+import NotFoundError from "../commons/exceptions/NotFoundError.js";
+import { Thread } from "../models/Thread.js";
 
 /** @type {import("express").RequestHandler} */
 export async function addComment(req, res, next) {
   try {
-    // TODO: replace author below with user id from token payload
-    const author = new Types.ObjectId();
+    const { userId } = res.locals.token;
     const { threadId } = req.params;
+    const { content } = req.body;
 
     const thread = await Thread.findById(threadId);
     if (!thread) {
-      throw new NotFoundError("thread not found")
+      throw new NotFoundError("thread not found");
     }
 
-    const comment = await Comment.create({
-      ...req.body,
-      author,
-      threadId,
+    thread.comments.push({
+      author: userId,
+      content,
     });
-    res.status(200).json(comment);
+    await thread.save();
+    res.status(201).json(thread.comments.at(-1));
   } catch (err) {
     next(err);
   }
@@ -30,27 +28,26 @@ export async function addComment(req, res, next) {
 /** @type {import("express").RequestHandler} */
 export async function updateCommentById(req, res, next) {
   try {
+    const { userId } = res.locals.token;
     const { threadId, commentId } = req.params;
+    const { content } = req.body;
 
     const thread = await Thread.findById(threadId);
     if (!thread) {
-      throw new NotFoundError("thread not found")
+      throw new NotFoundError("thread not found");
     }
 
-    const comment = await Comment.findById(commentId);
+    const comment = thread.comments.id(commentId);
     if (!comment) {
-      throw new NotFoundError("comment not found")
+      throw new NotFoundError("comment not found");
     }
 
-    // TODO: if unauthorized, throw forbidden error
-    // extract user id (author) from token payload
-    // if (comment.author !== author) {
-    //   throw new AuthorizationError("restricted resource")
-    // }
+    if (comment.author.toString() !== userId) {
+      throw new AuthorizationError("restricted resource");
+    }
 
-    await Comment.updateOne({ _id: commentId}, {
-      ...req.body,
-    });
+    comment.content = content;
+    await thread.save();
     res.status(200).json({
       message: "success",
     });
@@ -62,25 +59,25 @@ export async function updateCommentById(req, res, next) {
 /** @type {import("express").RequestHandler} */
 export async function deleteCommentById(req, res, next) {
   try {
+    const { userId } = res.locals.token;
     const { threadId, commentId } = req.params;
 
     const thread = await Thread.findById(threadId);
     if (!thread) {
-      throw new NotFoundError("thread not found")
+      throw new NotFoundError("thread not found");
     }
 
-    const comment = await Comment.findById(commentId);
+    const comment = thread.comments.id(commentId);
     if (!comment) {
-      throw new NotFoundError("comment not found")
+      throw new NotFoundError("comment not found");
     }
 
-    // TODO: if unauthorized, throw forbidden error
-    // extract user id (author) from token payload
-    // if (thread.author !== author) {
-    //   throw new AuthorizationError("restricted resource")
-    // }
+    if (thread.author.toString() !== userId) {
+      throw new AuthorizationError("restricted resource");
+    }
 
-    await Comment.deleteOne({ _id: commentId });
+    comment.remove();
+    await thread.save();
     res.status(200).json({
       message: "success",
     });
