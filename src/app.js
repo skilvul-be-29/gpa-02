@@ -1,14 +1,16 @@
 import express from "express";
-import { users } from "./routes/users.js";
-import { threads } from "./routes/threads.js";
 import ClientError from "./commons/exceptions/ClientError.js";
+import { campuses } from "./routes/campuses.js";
+import { threads } from "./routes/threads.js";
+import { users } from "./routes/users.js";
 
 export const app = express();
 
 app.use(express.json());
 
+app.use("/campuses", campuses);
 app.use("/users", users);
-app.use("/threads", threads)
+app.use("/threads", threads);
 
 app.use((err, req, res, next) => {
   if (err instanceof ClientError) {

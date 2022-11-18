@@ -12,10 +12,10 @@ export async function getCampuses(req, res, next) {
 }
 
 /** @type{import("express").RequestHandler} */
-export async function getCampusesById(req, res, next) {
+export async function getCampusById(req, res, next) {
   try {
-    const { id } = req.params;
-    const campus = await Campus.findOne({ id });
+    const { campusId } = req.params;
+    const campus = await Campus.findById(campusId);
     if (!campus) {
       throw new NotFoundError("campus not found");
     }
