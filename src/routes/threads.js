@@ -6,11 +6,12 @@ import {
   getThreads,
   updateThreadById,
 } from "../controllers/thread.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 export const threads = Router();
 
-threads.post("/", addThread);
 threads.get("/", getThreads);
 threads.get("/:threadId", getThreadById);
-threads.put("/:threadId", updateThreadById);
-threads.delete("/:threadId", deleteThreadById);
+threads.post("/", authMiddleware, addThread);
+threads.put("/:threadId", authMiddleware, updateThreadById);
+threads.delete("/:threadId", authMiddleware, deleteThreadById);
