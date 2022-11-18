@@ -15,6 +15,11 @@ const commentSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  threadId: {
+    type: Schema.Types.ObjectId,
+    ref: "Thread",
+    required: true,
+  },
 });
 
 export const Comment = model("Comment", commentSchema);
