@@ -120,9 +120,8 @@ describe("Integration Testing", function () {
     });
   });
 
-  describe("GET /threads/:id", function () {
+  describe("GET /threads/:threadId", function () {
     it("should return 200", async function () {
-      console.log(`/threads/${threadId}`);
       const response = await request.get(`/threads/${threadId}`);
       expect(response.status).equals(200);
     });
@@ -133,7 +132,7 @@ describe("Integration Testing", function () {
     });
   });
 
-  describe("PUT /threads/:id", function () {
+  describe("PUT /threads/:threadId", function () {
     it("should return 200", async function () {
       const response = await request
         .put(`/threads/${threadId}`)
@@ -154,7 +153,7 @@ describe("Integration Testing", function () {
     });
   });
 
-  describe("POST /threads/:id/comments", function () {
+  describe("POST /threads/:threadId/comments", function () {
     it("should return 201", async function () {
       const response = await request
         .post(`/threads/${threadId}/comments`)
@@ -174,6 +173,36 @@ describe("Integration Testing", function () {
           content: "test",
         });
       expect(response.status).equals(401);
+    });
+  });
+
+  describe("GET /threads/:threadId/comments", function () {
+    it("should return 200", async function () {
+      const response = await request.get(`/threads/${threadId}/comments`);
+      expect(response.status).equals(200);
+    });
+  });
+
+  describe("GET /threads/:threadId/comments/:commentId", function () {
+    it("should return 200", async function () {
+      const response = await request.get(
+        `/threads/${threadId}/comments/${commentId}`
+      );
+      expect(response.status).equals(200);
+    });
+
+    it("should return 404", async function () {
+      const response = await request.get(
+        `/threads/${threadId}/comments/${Types.ObjectId}`
+      );
+      expect(response.status).equals(404);
+    });
+
+    it("should return 404", async function () {
+      const response = await request.get(
+        `/threads/${Types.ObjectId}/comments/${commentId}`
+      );
+      expect(response.status).equals(404);
     });
   });
 

@@ -3,6 +3,39 @@ import NotFoundError from "../commons/exceptions/NotFoundError.js";
 import { Thread } from "../models/Thread.js";
 
 /** @type {import("express").RequestHandler} */
+export async function getComments(req, res, next) {
+  try {
+    const thread = await Thread.findById(req.params.threadId);
+    if (!thread) {
+      throw new NotFoundError("Thread not found");
+    }
+
+    res.status(200).json(thread.comments);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** @type {import("express").RequestHandler} */
+export async function getCommentById(req, res, next) {
+  try {
+    const thread = await Thread.findById(req.params.threadId);
+    if (!thread) {
+      throw new NotFoundError("Thread not found");
+    }
+
+    const comment = thread.comments.id(req.params.commentId);
+    if (!comment) {
+      throw new NotFoundError("Comment not found");
+    }
+
+    res.status(200).json(comment);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** @type {import("express").RequestHandler} */
 export async function addComment(req, res, next) {
   try {
     const { userId } = res.locals.token;
